@@ -3,11 +3,11 @@
  * A complete, pure vanilla JavaScript single-page application.
  */
 
-// Global Symbols List (30 high-quality Unicode glyphs)
+// Global Symbols List (30 high-quality celestial and mystic emojis acting as crisp full-color illustrations)
 const SYMBOLS = [
-    '★', '◆', '▲', '■', '●', '♠', '♣', '♥', '♦', '☀', 
-    '☂', '☯', '☘', '⚡', '☾', '☁', '✦', '✪', '✿', '❖', 
-    '⬟', '⬢', '⬣', '☮', '♛', '♜', '♞', '⚙', '⌘', '∞'
+    '🔮', '🧿', '🌌', '🌀', '🪐', '☄️', '🌟', '🛸', '🗝️', '👁️', 
+    '🃏', '📿', '🕯️', '🧭', '🎭', '🧪', '🏺', '⚔️', '🛡️', '👑', 
+    '💎', '⚜️', '🔱', '🧩', '🎯', '🎲', '🦄', '🐉', '🍀', '🦅'
 ];
 
 // Sound Synthesis Engine using Web Audio API
@@ -351,18 +351,6 @@ class Game {
             this.audio.playTap();
             this.resetGame();
         });
-
-        // Educational Toggle Handler
-        const eduToggle = document.getElementById('toggle-educational');
-        const eduPanel = document.getElementById('educational-panel');
-        eduToggle.addEventListener('change', (e) => {
-            this.audio.playTap();
-            if (e.target.checked) {
-                eduPanel.classList.remove('hidden');
-            } else {
-                eduPanel.classList.add('hidden');
-            }
-        });
     }
 
     switchScreen(screenId) {
@@ -396,9 +384,6 @@ class Game {
         // 1. Pick a random prediction symbol from list
         this.predictionSymbol = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
 
-        // Get pool of symbols excluding the prediction symbol
-        const otherSymbols = SYMBOLS.filter(s => s !== this.predictionSymbol);
-
         // Clear existing elements
         this.symbolGridElements.innerHTML = '';
 
@@ -410,8 +395,10 @@ class Game {
             if (i % 9 === 0) {
                 symbol = this.predictionSymbol;
             } else {
-                // Pick a random other symbol
-                symbol = otherSymbols[Math.floor(Math.random() * otherSymbols.length)];
+                // Pick a random symbol from the ENTIRE SYMBOLS list.
+                // This means the prediction symbol CAN also appear on non-multiples of 9,
+                // which beautifully hides/masks the trick from curious observers!
+                symbol = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
             }
 
             // Create Grid Cell
@@ -482,12 +469,6 @@ class Game {
         // Regenerate grid & choose new prediction symbol
         this.generateNewGrid();
         
-        // Reset Educational Toggle if open
-        const eduToggle = document.getElementById('toggle-educational');
-        const eduPanel = document.getElementById('educational-panel');
-        eduToggle.checked = false;
-        eduPanel.classList.add('hidden');
-
         // Switch screen back to Symbol grid directly for fast replay
         this.switchScreen('screen-grid');
     }
