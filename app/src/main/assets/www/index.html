@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Mind Reader</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Space+Grotesk:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Persistent Animated Background Particles -->
+    <canvas id="bg-particles"></canvas>
+    
+    <!-- Ambient Radial Glows -->
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+
+    <div class="app-container">
+        <!-- Top Navigation / Stats Bar -->
+        <header class="stats-header">
+            <div class="brand">
+                <span class="brand-sparkle">✦</span>
+                <span class="brand-text">MIND READER</span>
+            </div>
+            <div class="stats-tracker">
+                <div class="stat-item" title="Total attempts played">
+                    <span class="stat-label">Rituals</span>
+                    <span id="stat-played" class="stat-value">0</span>
+                </div>
+                <div class="stat-item" title="Successful mind readings">
+                    <span class="stat-label">Success Rate</span>
+                    <span id="stat-accuracy" class="stat-value">100%</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area with View Transitions -->
+        <main class="game-viewport">
+            
+            <!-- 1. Welcome Screen -->
+            <section id="screen-welcome" class="screen active">
+                <div class="card glass-card welcome-card">
+                    <div class="crystal-ball-container">
+                        <div class="crystal-ball">
+                            <div class="crystal-ball-inner"></div>
+                            <div class="crystal-ball-glare"></div>
+                            <canvas id="canvas-crystal-energy"></canvas>
+                        </div>
+                        <div class="crystal-ball-shadow"></div>
+                    </div>
+                    
+                    <h1 class="welcome-title text-glow">MIND READER</h1>
+                    <p class="welcome-subtitle">A Premium Remake of the Classic Feature Phone Phenomenon</p>
+                    
+                    <button id="btn-start" class="btn btn-primary" data-sound="tap">
+                        <span>Begin the Ritual</span>
+                        <div class="btn-glow"></div>
+                    </button>
+                </div>
+            </section>
+
+            <!-- 2. Instructions Screen -->
+            <section id="screen-instructions" class="screen">
+                <div class="card glass-card instructions-card">
+                    <h2 class="section-title text-glow">The Instructions</h2>
+                    <p class="instructions-intro">Clear your mind, follow these mental equations, and let the cosmic forces predict your thoughts.</p>
+                    
+                    <div class="steps-container">
+                        <div class="step-row">
+                            <div class="step-num">1</div>
+                            <div class="step-text">Think of any <strong>two-digit</strong> or <strong>three-digit</strong> number.</div>
+                        </div>
+                        <div class="step-row">
+                            <div class="step-num">2</div>
+                            <div class="step-text">Add all of its individual digits together.</div>
+                        </div>
+                        <div class="step-row">
+                            <div class="step-num">3</div>
+                            <div class="step-text">Subtract that sum from your original number.</div>
+                        </div>
+                        <div class="step-row">
+                            <div class="step-num">4</div>
+                            <div class="step-text">Locate your resulting number in the upcoming grid.</div>
+                        </div>
+                        <div class="step-row">
+                            <div class="step-num">5</div>
+                            <div class="step-text">Remember <strong>ONLY</strong> the symbol beside your number.</div>
+                        </div>
+                        <div class="step-row">
+                            <div class="step-num">6</div>
+                            <div class="step-text">Click the "Reveal" button at the bottom.</div>
+                        </div>
+                    </div>
+
+                    <!-- Example Panel -->
+                    <div class="example-box">
+                        <div class="example-badge">EXAMPLE</div>
+                        <div class="example-math">
+                            <div>Your Chosen Number: <span class="highlight">54</span></div>
+                            <div>Add Digits: <span class="math-expr">5 + 4 = 9</span></div>
+                            <div>Subtract Sum: <span class="math-expr">54 - 9 = <span class="highlight">45</span></span></div>
+                            <div class="example-conclusion">You would search for number <span class="highlight">45</span> in the grid.</div>
+                        </div>
+                    </div>
+
+                    <button id="btn-continue" class="btn btn-primary" data-sound="tap">
+                        <span>Enter the Symbol Grid</span>
+                        <div class="btn-glow"></div>
+                    </button>
+                </div>
+            </section>
+
+            <!-- 3. Symbol Grid Screen -->
+            <section id="screen-grid" class="screen">
+                <div class="grid-layout-container">
+                    <div class="grid-header">
+                        <h2 class="grid-title text-glow">Cosmic Symbol Grid</h2>
+                        <p class="grid-subtitle">Locate your final calculated number. Memorize the symbol beside it.</p>
+                    </div>
+
+                    <div class="grid-scroll-area">
+                        <div id="symbol-grid-elements" class="symbol-grid">
+                            <!-- Populated dynamically via JS (0 to 99) -->
+                        </div>
+                    </div>
+
+                    <div class="grid-footer">
+                        <button id="btn-reveal" class="btn btn-primary btn-reveal-glow" data-sound="reveal-trigger">
+                            <span>REVEAL MY MIND</span>
+                            <div class="btn-glow"></div>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. Reveal Screen (Flip Card Animation) -->
+            <section id="screen-reveal" class="screen">
+                <div class="reveal-container">
+                    <!-- Countdown & Preparing Stage -->
+                    <div id="reveal-preparing" class="preparing-container">
+                        <div class="quantum-loader">
+                            <div class="orbit orbit-1"></div>
+                            <div class="orbit orbit-2"></div>
+                            <div class="orbit orbit-3"></div>
+                            <div class="core-node"></div>
+                        </div>
+                        <h2 id="countdown-status" class="preparing-title text-glow">Tuning Mind Frequencies...</h2>
+                        <div id="countdown-number" class="countdown-digits text-glow">3</div>
+                    </div>
+
+                    <!-- The Actual Mind Revealed Display -->
+                    <div id="reveal-result" class="result-container hidden">
+                        <!-- Card Flips to Reveal Symbol -->
+                        <div class="flip-card">
+                            <div class="flip-card-inner" id="card-inner">
+                                <!-- Card Front (Mystery Oracle) -->
+                                <div class="flip-card-front glass-card">
+                                    <div class="card-logo">👁</div>
+                                    <div class="card-status">Reading Consciousness</div>
+                                </div>
+                                <!-- Card Back (Revealed Prediction Symbol) -->
+                                <div class="flip-card-back glass-card">
+                                    <div class="sparkles-container">
+                                        <span class="sparkle sp-1">✦</span>
+                                        <span class="sparkle sp-2">✦</span>
+                                        <span class="sparkle sp-3">✦</span>
+                                    </div>
+                                    <div id="prediction-symbol" class="revealed-symbol text-glow">★</div>
+                                    <div class="prediction-caption">I KNOW YOUR SYMBOL</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Educational Mode Toggle and Panel -->
+                        <div class="education-section glass-card">
+                            <div class="toggle-container">
+                                <span class="toggle-label">Show Mathematical Mystery Breakdown</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="toggle-educational">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                            
+                            <div id="educational-panel" class="educational-panel hidden">
+                                <h4 class="edu-title">The Math Behind the Mystery</h4>
+                                <p class="edu-desc">While it feels like telepathy, this is a beautiful consequence of digital modular arithmetic!</p>
+                                <div class="edu-math-block">
+                                    <p>Any 2-digit number is algebraically written as: <span class="formula">10a + b</span></p>
+                                    <p>Summing the digits: <span class="formula">a + b</span></p>
+                                    <p>Subtracting them: <span class="formula">(10a + b) - (a + b) = 9a</span></p>
+                                    <p class="highlight-formula">The result is ALWAYS a multiple of 9!</p>
+                                </div>
+                                <p class="edu-desc-footer">For three-digit numbers, <span class="formula">(100a + 10b + c) - (a + b + c) = 99a + 9b = 9(11a + b)</span> which is also a multiple of 9.</p>
+                                <p class="edu-desc-footer">Because of this, every multiple of 9 secretly shares the exact same symbol. No matter what number you think of, you are mathematically forced to arrive at a multiple of 9!</p>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="reveal-actions">
+                            <button id="btn-play-again" class="btn btn-secondary" data-sound="tap">
+                                <span>Initiate New Ritual</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Confetti Overlay Canvas -->
+    <canvas id="canvas-confetti"></canvas>
+
+    <!-- UI Sound Feedback Script Support -->
+    <script src="app.js"></script>
+</body>
+</html>

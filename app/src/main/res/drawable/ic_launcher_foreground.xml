@@ -1,0 +1,34 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Outer Magical Hexagon / Diamond Frame -->
+    <path
+        android:strokeColor="#00f2fe"
+        android:strokeWidth="2.5"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M54,26 L78,54 L54,82 L30,54 Z" />
+
+    <!-- Eye Contour -->
+    <path
+        android:strokeColor="#9d4edd"
+        android:strokeWidth="3"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M34,54 C40,43 68,43 74,54 C68,65 40,65 34,54 Z" />
+
+    <!-- Iris / Magic Orb in Center -->
+    <path
+        android:fillColor="#ff007f"
+        android:pathData="M54,54 m-7.5,0 a7.5,7.5 0 1,1 15,0 a7.5,7.5 0 1,1 -15,0" />
+
+    <!-- Sparkle / Pupil -->
+    <path
+        android:fillColor="#ffffff"
+        android:pathData="M54,49.5 L55.5,52.5 L58.5,54 L55.5,55.5 L54,58.5 L52.5,55.5 L49.5,54 L52.5,52.5 Z" />
+
+</vector>

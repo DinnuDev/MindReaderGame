@@ -1,0 +1,6 @@
+{
+  "name": "Mind Reader",
+  "description": "A premium modern remake of the classic Java feature phone Mind Reader game from the 2000s.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
