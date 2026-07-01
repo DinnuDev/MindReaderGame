@@ -118,50 +118,69 @@ class ParticleBackground {
     }
 
     spawn(count) {
-        for (let i = 0; i < count; i++) {
+        // High quality premium iOS-style soft bokeh blobs
+        for (let i = 0; i < 12; i++) {
             this.particles.push({
                 x: Math.random() * this.canvas.width,
                 y: Math.random() * this.canvas.height,
-                size: Math.random() * 2 + 0.5,
-                speedX: (Math.random() - 0.5) * 0.4,
-                speedY: (Math.random() - 0.5) * 0.4,
-                alpha: Math.random() * 0.5 + 0.1
+                size: Math.random() * 80 + 50, // Elegant large soft bokeh blobs
+                speedX: (Math.random() - 0.5) * 0.12,
+                speedY: (Math.random() - 0.5) * 0.12,
+                alpha: Math.random() * 0.12 + 0.03,
+                color: Math.random() > 0.5 ? '#60a5fa' : '#c084fc', // Sky blue and Purple
+                isBokeh: true
+            });
+        }
+        // Small crisp floating stardust
+        for (let i = 0; i < 30; i++) {
+            this.particles.push({
+                x: Math.random() * this.canvas.width,
+                y: Math.random() * this.canvas.height,
+                size: Math.random() * 1.5 + 0.5,
+                speedX: (Math.random() - 0.5) * 0.25,
+                speedY: (Math.random() - 0.5) * 0.25,
+                alpha: Math.random() * 0.5 + 0.1,
+                color: '#ffffff',
+                isBokeh: false
             });
         }
     }
 
     animate() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.fillStyle = 'rgba(157, 78, 221, 0.4)';
         
         this.particles.forEach(p => {
             p.x += p.speedX;
             p.y += p.speedY;
 
-            if (p.x < 0 || p.x > this.canvas.width) p.speedX *= -1;
-            if (p.y < 0 || p.y > this.canvas.height) p.speedY *= -1;
+            if (p.x < -100) p.x = this.canvas.width + 100;
+            if (p.x > this.canvas.width + 100) p.x = -100;
+            if (p.y < -100) p.y = this.canvas.height + 100;
+            if (p.y > this.canvas.height + 100) p.y = -100;
 
             this.ctx.save();
             this.ctx.globalAlpha = p.alpha;
+            this.ctx.fillStyle = p.color;
             this.ctx.beginPath();
             this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
             this.ctx.fill();
             this.ctx.restore();
         });
 
-        // Draw connections
-        this.ctx.strokeStyle = 'rgba(0, 242, 254, 0.05)';
+        // Draw connections for non-bokeh stars to keep the high-tech oracle feel
+        this.ctx.strokeStyle = 'rgba(96, 165, 250, 0.05)';
         this.ctx.lineWidth = 0.5;
-        for (let i = 0; i < this.particles.length; i++) {
-            for (let j = i + 1; j < this.particles.length; j++) {
-                const dx = this.particles[i].x - this.particles[j].x;
-                const dy = this.particles[i].y - this.particles[j].y;
+        const starParticles = this.particles.filter(p => !p.isBokeh);
+        for (let i = 0; i < starParticles.length; i++) {
+            for (let j = i + 1; j < starParticles.length; j++) {
+                const dx = starParticles[i].x - starParticles[j].x;
+                const dy = starParticles[i].y - starParticles[j].y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
 
-                if (dist < 100) {
+                if (dist < 80) {
                     this.ctx.beginPath();
-                    this.ctx.moveTo(this.particles[i].x, this.particles[i].y);
-                    this.ctx.lineTo(this.particles[j].x, this.particles[j].y);
+                    this.ctx.moveTo(starParticles[i].x, starParticles[i].y);
+                    this.ctx.lineTo(starParticles[j].x, starParticles[j].y);
                     this.ctx.stroke();
                 }
             }
@@ -171,59 +190,285 @@ class ParticleBackground {
     }
 }
 
-// Crystal Ball Magic Glow System
+// Crystal Ball Magic Glow System (Fluid Interactive Plasma Globe)
 class CrystalBallEnergy {
     constructor() {
         this.canvas = document.getElementById('canvas-crystal-energy');
         if (!this.canvas) return;
         this.ctx = this.canvas.getContext('2d');
-        this.particles = [];
         this.width = this.canvas.width = 160;
         this.height = this.canvas.height = 160;
-        this.spawn(35);
+        
+        this.cx = this.width / 2;
+        this.cy = this.height / 2;
+        this.radius = 70; // Outer glass shell boundary
+
+        // Touch tracking
+        this.touchActive = false;
+        this.touchX = this.cx;
+        this.touchY = this.cy;
+
+        // Active plasma beams
+        this.beams = [];
+        const beamColors = [
+            { main: '#c084fc', glow: 'rgba(168, 85, 247, 0.4)', core: '#ffffff' }, // Purple
+            { main: '#60a5fa', glow: 'rgba(59, 130, 246, 0.4)', core: '#ffffff' }, // Blue
+            { main: '#38bdf8', glow: 'rgba(56, 189, 248, 0.4)', core: '#ffffff' }, // Cyan
+            { main: '#f43f5e', glow: 'rgba(244, 63, 94, 0.4)', core: '#ffffff' }   // Magenta/Pink
+        ];
+
+        for (let i = 0; i < 5; i++) {
+            this.beams.push({
+                angle: Math.random() * Math.PI * 2,
+                targetAngle: Math.random() * Math.PI * 2,
+                speed: Math.random() * 0.02 + 0.01,
+                colors: beamColors[i % beamColors.length],
+                wobbleOffset: Math.random() * 100
+            });
+        }
+
+        // Floating ionization sparks
+        this.sparks = [];
+        for (let i = 0; i < 15; i++) {
+            this.sparks.push(this.createSpark());
+        }
+
+        this.setupListeners();
         this.animate();
     }
 
-    spawn(count) {
-        const cx = this.width / 2;
-        const cy = this.height / 2;
-        for (let i = 0; i < count; i++) {
-            const angle = Math.random() * Math.PI * 2;
-            const dist = Math.random() * 50;
-            this.particles.push({
-                x: cx + Math.cos(angle) * dist,
-                y: cy + Math.sin(angle) * dist,
-                angle: angle,
-                speed: Math.random() * 0.02 + 0.01,
-                dist: dist,
-                radius: Math.random() * 2 + 1,
-                color: Math.random() > 0.4 ? 'rgba(0, 242, 254, 0.8)' : 'rgba(255, 0, 127, 0.8)'
-            });
+    createSpark() {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.random() * (this.radius - 15);
+        return {
+            x: this.cx + Math.cos(angle) * dist,
+            y: this.cy + Math.sin(angle) * dist,
+            vx: (Math.random() - 0.5) * 0.3,
+            vy: -Math.random() * 0.4 - 0.2, // Drifts upward
+            size: Math.random() * 1.5 + 0.5,
+            alpha: Math.random() * 0.5 + 0.2,
+            life: Math.random() * 100 + 50,
+            maxLife: 150
+        };
+    }
+
+    setupListeners() {
+        const updateTouch = (e) => {
+            const rect = this.canvas.getBoundingClientRect();
+            // Supports both touches and pointer events
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            const rawX = clientX - rect.left;
+            const rawY = clientY - rect.top;
+            
+            // Constrain touch inside the plasma sphere
+            const dx = rawX - this.cx;
+            const dy = rawY - this.cy;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            if (dist < this.radius - 5) {
+                this.touchX = rawX;
+                this.touchY = rawY;
+            } else {
+                this.touchX = this.cx + (dx / dist) * (this.radius - 5);
+                this.touchY = this.cy + (dy / dist) * (this.radius - 5);
+            }
+            this.touchActive = true;
+        };
+
+        this.canvas.addEventListener('pointerdown', (e) => {
+            this.canvas.setPointerCapture(e.pointerId);
+            updateTouch(e);
+        });
+        this.canvas.addEventListener('pointermove', (e) => {
+            if (this.touchActive) updateTouch(e);
+        });
+        this.canvas.addEventListener('pointerup', (e) => {
+            this.canvas.releasePointerCapture(e.pointerId);
+            this.touchActive = false;
+        });
+        this.canvas.addEventListener('pointerleave', () => {
+            this.touchActive = false;
+        });
+
+        // Touch fallbacks
+        this.canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            updateTouch(e);
+        });
+        this.canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            updateTouch(e);
+        });
+        this.canvas.addEventListener('touchend', () => {
+            this.touchActive = false;
+        });
+    }
+
+    drawPlasmaBeam(startX, startY, endX, endY, colors, wobbleOffset, beamId) {
+        const steps = 24;
+        const dx = endX - startX;
+        const dy = endY - startY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 5) return;
+
+        const time = Date.now() * 0.005;
+        const points = [];
+
+        points.push({ x: startX, y: startY });
+
+        for (let i = 1; i < steps; i++) {
+            const t = i / steps;
+            let px = startX + dx * t;
+            let py = startY + dy * t;
+
+            // Highly organic combination of multiple high-frequency sine waves for "fluid electricity" feel
+            const freq1 = t * Math.PI * 2.2 - time + wobbleOffset;
+            const freq2 = t * Math.PI * 4.5 + time * 1.5 - wobbleOffset;
+            
+            const wave1 = Math.sin(freq1) * 7;
+            const wave2 = Math.cos(freq2) * 3.5;
+            
+            // Envelope to taper the wave at the core and the glass wall
+            const envelope = Math.sin(t * Math.PI);
+            const offset = (wave1 + wave2) * envelope;
+
+            // Perpendicular unit vector
+            const nx = -dy / dist;
+            const ny = dx / dist;
+
+            px += nx * offset;
+            py += ny * offset;
+
+            // Fine electrostatic jitter
+            px += (Math.random() - 0.5) * 1.5;
+            py += (Math.random() - 0.5) * 1.5;
+
+            points.push({ x: px, y: py });
         }
+
+        points.push({ x: endX, y: endY });
+
+        // Multi-pass glow render pipeline
+        // Pass 1: Outer wide background fog
+        this.ctx.beginPath();
+        this.ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            this.ctx.lineTo(points[i].x, points[i].y);
+        }
+        this.ctx.strokeStyle = colors.glow;
+        this.ctx.lineWidth = 8;
+        this.ctx.shadowColor = colors.main;
+        this.ctx.shadowBlur = 10;
+        this.ctx.stroke();
+
+        // Pass 2: Colored Plasma Beam Core
+        this.ctx.shadowBlur = 0; // reset shadow for performance
+        this.ctx.strokeStyle = colors.main;
+        this.ctx.lineWidth = 2.5;
+        this.ctx.stroke();
+
+        // Pass 3: White-Hot Electrostatic Core Line
+        this.ctx.strokeStyle = colors.core;
+        this.ctx.lineWidth = 0.8;
+        this.ctx.stroke();
+
+        // Small glowing flare at destination point
+        this.ctx.beginPath();
+        this.ctx.arc(endX, endY, Math.random() * 4 + 2, 0, Math.PI * 2);
+        this.ctx.fillStyle = colors.main;
+        this.ctx.fill();
+        this.ctx.beginPath();
+        this.ctx.arc(endX, endY, Math.random() * 2 + 0.5, 0, Math.PI * 2);
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fill();
     }
 
     animate() {
         if (!this.canvas) return;
-        this.ctx.clearRect(0, 0, this.width, this.height);
-        const cx = this.width / 2;
-        const cy = this.height / 2;
+        
+        // Slightly translucent clearing to create beautiful motion trails
+        this.ctx.fillStyle = 'rgba(5, 6, 15, 0.2)';
+        this.ctx.fillRect(0, 0, this.width, this.height);
 
-        this.particles.forEach(p => {
-            p.angle += p.speed;
-            p.dist -= 0.2;
-            if (p.dist <= 2) {
-                p.dist = 60;
-                p.angle = Math.random() * Math.PI * 2;
+        // Update & Draw Background Ionization Sparks
+        this.sparks.forEach((s, idx) => {
+            s.x += s.vx;
+            s.y += s.vy;
+            s.life--;
+            
+            // Constrain sparks inside globe
+            const dx = s.x - this.cx;
+            const dy = s.y - this.cy;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist > this.radius - 8) {
+                s.life = 0;
             }
 
-            p.x = cx + Math.cos(p.angle) * p.dist;
-            p.y = cy + Math.sin(p.angle) * p.dist;
-
-            this.ctx.fillStyle = p.color;
-            this.ctx.beginPath();
-            this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-            this.ctx.fill();
+            if (s.life <= 0) {
+                this.sparks[idx] = this.createSpark();
+            } else {
+                this.ctx.fillStyle = `rgba(192, 132, 252, ${s.alpha * (s.life / s.maxLife)})`;
+                this.ctx.beginPath();
+                this.ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
         });
+
+        // Update and draw plasma filaments
+        this.beams.forEach((b, i) => {
+            // Update beam drifting
+            if (Math.abs(b.angle - b.targetAngle) < 0.1) {
+                b.targetAngle = Math.random() * Math.PI * 2;
+                b.speed = Math.random() * 0.015 + 0.005;
+            }
+            // Smoothly drift towards the target angle
+            const angleDiff = b.targetAngle - b.angle;
+            b.angle += Math.sin(angleDiff) * b.speed;
+
+            let endX, endY;
+
+            if (this.touchActive) {
+                if (i === 0 || i === 1) {
+                    // Force primary filaments to attach directly to the touch position
+                    endX = this.touchX;
+                    endY = this.touchY;
+                } else {
+                    // Secondary filaments are drawn towards the touch point but with an offset
+                    const touchAngle = Math.atan2(this.touchY - this.cy, this.touchX - this.cx);
+                    const modifiedAngle = touchAngle + (i - 2.5) * 0.5;
+                    endX = this.cx + Math.cos(modifiedAngle) * (this.radius - 4);
+                    endY = this.cy + Math.sin(modifiedAngle) * (this.radius - 4);
+                }
+            } else {
+                // Natural drifting state: terminate on outer glass surface
+                endX = this.cx + Math.cos(b.angle) * (this.radius - 3);
+                endY = this.cy + Math.sin(b.angle) * (this.radius - 3);
+            }
+
+            // Draw the plasma beam
+            this.drawPlasmaBeam(this.cx, this.cy, endX, endY, b.colors, b.wobbleOffset, i);
+        });
+
+        // Draw center high-voltage electrode core
+        const coreGradient = this.ctx.createRadialGradient(this.cx, this.cy, 1, this.cx, this.cy, 10);
+        coreGradient.addColorStop(0, '#ffffff');
+        coreGradient.addColorStop(0.2, '#a855f7');
+        coreGradient.addColorStop(0.6, 'rgba(59, 130, 246, 0.4)');
+        coreGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        
+        this.ctx.fillStyle = coreGradient;
+        this.ctx.beginPath();
+        this.ctx.arc(this.cx, this.cy, 10, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Delicate inner glass rim glow to complete the realism
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        this.ctx.lineWidth = 1;
+        this.ctx.beginPath();
+        this.ctx.arc(this.cx, this.cy, this.radius - 2, 0, Math.PI * 2);
+        this.ctx.stroke();
 
         requestAnimationFrame(() => this.animate());
     }
@@ -387,36 +632,58 @@ class Game {
         // Clear existing elements
         this.symbolGridElements.innerHTML = '';
 
-        // 2. Map 0-99 numbers
+        // 2. Identify all indices that are NOT multiples of 9
+        const nonMultiplesOf9 = [];
+        for (let i = 0; i < 100; i++) {
+            if (i % 9 !== 0) {
+                nonMultiplesOf9.push(i);
+            }
+        }
+
+        // 3. Select 18 random indices from non-multiples to also force-receive the prediction symbol.
+        // This distributes the prediction symbol beautifully across other numbers so it is "with other images as well".
+        const predictionSymbolExtras = new Set();
+        const targetExtraCount = 18;
+        while (predictionSymbolExtras.size < targetExtraCount && nonMultiplesOf9.length > 0) {
+            const randIdx = Math.floor(Math.random() * nonMultiplesOf9.length);
+            const cellIdx = nonMultiplesOf9.splice(randIdx, 1)[0];
+            predictionSymbolExtras.add(cellIdx);
+        }
+
+        // Filter other symbols to avoid duplicating the prediction symbol as much as possible
+        const otherSymbols = SYMBOLS.filter(s => s !== this.predictionSymbol);
+
+        // 4. Map 0-99 numbers
         for (let i = 0; i < 100; i++) {
             let symbol;
             
-            // Check if multiple of 9
             if (i % 9 === 0) {
                 symbol = this.predictionSymbol;
+            } else if (predictionSymbolExtras.has(i)) {
+                symbol = this.predictionSymbol;
             } else {
-                // Pick a random symbol from the ENTIRE SYMBOLS list.
-                // This means the prediction symbol CAN also appear on non-multiples of 9,
-                // which beautifully hides/masks the trick from curious observers!
-                symbol = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+                symbol = otherSymbols[Math.floor(Math.random() * otherSymbols.length)];
             }
 
             // Create Grid Cell
             const cell = document.createElement('div');
             cell.className = 'grid-cell';
-            if (i % 9 === 0) {
-                cell.classList.add('highlight-multiple');
-            }
 
             cell.innerHTML = `
                 <span class="cell-num">${i}</span>
-                <span class="cell-sym">${symbol}</span>
+                <div class="symbol-orb">
+                    <span class="cell-sym">${symbol}</span>
+                </div>
             `;
             this.symbolGridElements.appendChild(cell);
         }
 
-        // Set the prediction symbol on the results card front placeholder
-        document.getElementById('prediction-symbol').textContent = this.predictionSymbol;
+        // Set the prediction symbol on the results card front placeholder inside a majestic large orb
+        document.getElementById('prediction-symbol').innerHTML = `
+            <div class="symbol-orb" style="width: 120px; height: 120px; box-shadow: 0 0 35px rgba(168, 85, 247, 0.4), inset 0 8px 12px rgba(255, 255, 255, 0.4), inset 0 -8px 12px rgba(0, 0, 0, 0.8);">
+                <span class="cell-sym" style="font-size: 4rem; text-shadow: 0 0 15px rgba(192, 132, 252, 0.6);">${this.predictionSymbol}</span>
+            </div>
+        `;
     }
 
     startRevealRitual() {

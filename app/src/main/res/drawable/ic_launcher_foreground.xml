@@ -3,32 +3,55 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    
-    <!-- Outer Magical Hexagon / Diamond Frame -->
-    <path
-        android:strokeColor="#00f2fe"
-        android:strokeWidth="2.5"
-        android:strokeLineJoin="round"
-        android:fillColor="#00000000"
-        android:pathData="M54,26 L78,54 L54,82 L30,54 Z" />
 
-    <!-- Eye Contour -->
+    <!-- Soft ambient shadow below the glass sphere -->
     <path
-        android:strokeColor="#9d4edd"
-        android:strokeWidth="3"
-        android:strokeLineJoin="round"
-        android:strokeLineCap="round"
-        android:fillColor="#00000000"
-        android:pathData="M34,54 C40,43 68,43 74,54 C68,65 40,65 34,54 Z" />
+        android:pathData="M54,58 m-24,0 a24,24 0 1,1 48,0 a24,24 0 1,1 -48,0"
+        android:fillColor="#3A000000" />
 
-    <!-- Iris / Magic Orb in Center -->
+    <!-- Outer glowing neon ring -->
     <path
-        android:fillColor="#ff007f"
-        android:pathData="M54,54 m-7.5,0 a7.5,7.5 0 1,1 15,0 a7.5,7.5 0 1,1 -15,0" />
+        android:pathData="M54,54 m-28,0 a28,28 0 1,1 56,0 a28,28 0 1,1 -56,0"
+        android:strokeWidth="1.2"
+        android:strokeColor="#50a855f7"
+        android:fillColor="#00000000" />
 
-    <!-- Sparkle / Pupil -->
+    <!-- 3D Base of Glass Globe / Premium Glass Stand (iOS aesthetic) -->
     <path
-        android:fillColor="#ffffff"
-        android:pathData="M54,49.5 L55.5,52.5 L58.5,54 L55.5,55.5 L54,58.5 L52.5,55.5 L49.5,54 L52.5,52.5 Z" />
+        android:pathData="M40,78 L68,78 L64,83 L44,83 Z"
+        android:fillColor="#222543" />
+    <path
+        android:pathData="M44,83 L64,83 L61,86 L47,86 Z"
+        android:fillColor="#111224" />
+
+    <!-- Outer bright rim glow of the globe -->
+    <path
+        android:pathData="M54,54 m-24,0 a24,24 0 1,1 48,0 a24,24 0 1,1 -48,0"
+        android:strokeWidth="1.0"
+        android:strokeColor="#70ffffff"
+        android:fillColor="#120c24" />
+
+    <!-- Glowing magical eye in the center -->
+    <path
+        android:pathData="M42,54 C46,47 62,47 66,54 C62,61 46,61 42,54 Z"
+        android:strokeWidth="1.5"
+        android:strokeColor="#c084fc"
+        android:fillColor="#10a855f7" />
+    <path
+        android:pathData="M54,54 m-5,0 a5,5 0 1,1 10,0 a5,5 0 1,1 -10,0"
+        android:fillColor="#60a5fa" />
+    <path
+        android:pathData="M54,54 m-2,0 a2,2 0 1,1 4,0 a2,2 0 1,1 -4,0"
+        android:fillColor="#ffffff" />
+
+    <!-- Front glass reflection overlay (iOS frosted gloss) -->
+    <path
+        android:pathData="M54,54 m-23.5,0 a23.5,23.5 0 1,1 47,0 a23.5,23.5 0 1,1 -47,0"
+        android:fillColor="#15ffffff" />
+
+    <!-- Glossy reflection pill highlight at the top-left -->
+    <path
+        android:pathData="M44,38 C48,34 60,34 64,38 C58,35 50,35 44,38 Z"
+        android:fillColor="#B0ffffff" />
 
 </vector>
